@@ -7,15 +7,27 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
 
+/**
+ * Pricing policy for a fixed amount + each hour spent in the parking (fixed amount + nb hours * hour price)
+ * The fixed amount scale is 2 and and rounding mode HALF_UP.
+ */
 public class PerHourAndFixedAmountPricingPolicy implements PricingPolicy {
 
+    /**
+     * Pricing for each hour
+     */
     private final PerHourPricingPolicy perHourPricingPolicy;
+
+    /**
+     * Fixed amount to add
+     */
     private final BigDecimal fixedAmount;
 
     /**
+     * Constructor
      *
-     * @param hourPrice
-     * @param fixedAmount
+     * @param hourPrice   hour price
+     * @param fixedAmount fixed amount
      */
     public PerHourAndFixedAmountPricingPolicy(BigDecimal hourPrice, BigDecimal fixedAmount) {
         this.perHourPricingPolicy = new PerHourPricingPolicy(hourPrice);
