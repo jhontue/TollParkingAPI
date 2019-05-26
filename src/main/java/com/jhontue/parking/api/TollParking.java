@@ -18,6 +18,7 @@ import java.util.stream.IntStream;
  * A convenient builder is provided to create the parking, see {@link TollParking#create()} to set the
  * proper initialization. A pricing policy is mandatory when creating the parking and the parking slot configuration
  * should be initialized with the builder.
+ * Toll parking is thread safe.
  */
 public class TollParking {
 

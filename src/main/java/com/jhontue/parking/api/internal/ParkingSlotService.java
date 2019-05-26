@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * The parking slot availability service. Allows to checkin and check out cars into/from the parking slots.
@@ -18,6 +19,13 @@ public class ParkingSlotService {
      * The list of parking slots
      */
     private final List<ParkingSlotUtilization> slots;
+
+    /**
+     * Lock is necessary for dealing with concurrency and prevent multiple checkins or checkouts of the same slot.
+     * A lock is needed because parallel threads could get the same slot when checkin.
+     *  And also, parallel threads could checkout twice the same parking slot.
+     */
+    private final ReentrantLock lock = new ReentrantLock();
 
     /**
      * Constructor
@@ -31,6 +39,7 @@ public class ParkingSlotService {
     /**
      * Allows to checkin a car in the parking. It reserves a parking slot and sets the arrival time. If no parking slot
      * is available for the right type, the checkin is refused, no parking slot will be returned.
+     * This operation is thread safe.
      *
      * @param car a car
      * @return a parking slot utilization if available
@@ -42,18 +51,28 @@ public class ParkingSlotService {
             throw new IllegalArgumentException("car must not be null");
         }
 
-        // get first parking slot of the right type if available
-        Optional<ParkingSlotUtilization> optSlotUtilization = slots.stream()
-                .filter(slot -> slot.canReceive(car) && slot.isFree())
-                .findFirst();
+        // take the lock before searching
+        lock.lock();
 
-        // link slot utilisation and car if available
-        optSlotUtilization.ifPresent(
-                slotUtilization -> {
-                    slotUtilization.setCar(car);
-                    slotUtilization.setArrivalTime(LocalDateTime.now());
-                    slotUtilization.setDepartureTime(null);
-                });
+        Optional<ParkingSlotUtilization> optSlotUtilization;
+        try {
+            // get first parking slot of the right type if available
+            optSlotUtilization = slots.stream()
+                    .filter(slot -> slot.canReceive(car) && slot.isFree())
+                    .findFirst();
+
+            // link slot utilisation and car if available
+            optSlotUtilization.ifPresent(
+                    slotUtilization -> {
+                        slotUtilization.setCar(car);
+                        slotUtilization.setArrivalTime(LocalDateTime.now());
+                        slotUtilization.setDepartureTime(null);
+                    });
+        } finally {
+            // always unlock
+            lock.unlock();
+        }
+
 
         // return parking slot if available
         return optSlotUtilization.map(ParkingSlotUtilization::getParkingSlot);
@@ -61,7 +80,8 @@ public class ParkingSlotService {
 
     /**
      * Allows to checkout a car from the parking. The parking slot is freed and becomes available for checkin.
-     * The departure time is set.
+     * The departure time is set when the car is leaving.
+     * This operation is thread safe.
      *
      * @param parkingSlot the parking slot to be freed
      * @return a parking slot utilization
@@ -73,16 +93,27 @@ public class ParkingSlotService {
             throw new IllegalArgumentException("parking slot must not be null");
         }
 
-        // find parking slot by id
-        Optional<ParkingSlotUtilization> optSlotUtilization = slots.stream()
-                .filter(slotUtilization -> slotUtilization.getParkingSlot().getId().equals(parkingSlot.getId()) && !slotUtilization.isFree())
-                .findFirst();
+        // take the lock before searching
+        lock.lock();
 
-        // mark parking slot as free if available
-        optSlotUtilization.ifPresent(slotUtilization -> {
-            slotUtilization.setCar(null);
-            slotUtilization.setDepartureTime(LocalDateTime.now());
-        });
+        Optional<ParkingSlotUtilization> optSlotUtilization;
+
+        try {
+            // find parking slot by id
+            optSlotUtilization = slots.stream()
+                    .filter(slotUtilization -> slotUtilization.getParkingSlot().getId().equals(parkingSlot.getId()) && !slotUtilization.isFree())
+                    .findFirst();
+
+            // mark parking slot as free if available
+            optSlotUtilization.ifPresent(slotUtilization -> {
+                slotUtilization.setCar(null);
+                slotUtilization.setDepartureTime(LocalDateTime.now());
+            });
+
+        } finally {
+            // always unlock
+            lock.unlock();
+        }
 
         // return the parking time
         return optSlotUtilization.map(ParkingSlotUtilization::getParkingTime);
