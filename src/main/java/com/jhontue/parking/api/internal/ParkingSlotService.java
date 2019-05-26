@@ -2,6 +2,7 @@ package com.jhontue.parking.api.internal;
 
 import com.jhontue.parking.api.Car;
 import com.jhontue.parking.api.ParkingSlot;
+import com.jhontue.parking.api.internal.ParkingSlotUtilization.ParkingTime;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -32,9 +33,10 @@ public class ParkingSlotService {
      * is available for the right type, the checkin is refused, no parking slot will be returned.
      *
      * @param car a car
-     * @throw IllegalArgumentException if the car is null
+     * @return a parking slot utilization if available
+     * @throws IllegalArgumentException if the car is null
      */
-    public Optional<ParkingSlotUtilization> checkin(Car car) {
+    public Optional<ParkingSlot> checkin(Car car) {
         // check inputs
         if (Objects.isNull(car)) {
             throw new IllegalArgumentException("car must not be null");
@@ -52,7 +54,9 @@ public class ParkingSlotService {
                     slotUtilization.setArrivalTime(LocalDateTime.now());
                     slotUtilization.setDepartureTime(null);
                 });
-        return optSlotUtilization;
+
+        // return parking slot if available
+        return optSlotUtilization.map(ParkingSlotUtilization::getParkingSlot);
     }
 
     /**
@@ -60,9 +64,14 @@ public class ParkingSlotService {
      * The departure time is set.
      *
      * @param parkingSlot the parking slot to be freed
+     * @return a parking slot utilization
+     * @throws IllegalArgumentException if parking slot is null
      */
-    public Optional<ParkingSlotUtilization> checkout(ParkingSlot parkingSlot) {
-        // TODO check input
+    public Optional<ParkingTime> checkout(ParkingSlot parkingSlot) {
+        // check input
+        if (Objects.isNull(parkingSlot)) {
+            throw new IllegalArgumentException("parking slot must not be null");
+        }
 
         // find parking slot by id
         Optional<ParkingSlotUtilization> optSlotUtilization = slots.stream()
@@ -75,6 +84,7 @@ public class ParkingSlotService {
             slotUtilization.setDepartureTime(LocalDateTime.now());
         });
 
-        return optSlotUtilization;
+        // return the parking time
+        return optSlotUtilization.map(ParkingSlotUtilization::getParkingTime);
     }
 }

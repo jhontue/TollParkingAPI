@@ -96,7 +96,7 @@ public class ParkingSlotUtilization {
     }
 
     /**
-     * Sets the departure time, when the car leaves the parkin slot
+     * Sets the departure time, when the car leaves the parking slot
      *
      * @param departureTime the departure time
      */
@@ -120,5 +120,59 @@ public class ParkingSlotUtilization {
      */
     public LocalDateTime getDepartureTime() {
         return departureTime;
+    }
+
+    /**
+     * The parking time of this parking slot
+     *
+     * @return a parking time
+     */
+    public ParkingTime getParkingTime() {
+        return new ParkingTime(arrivalTime, departureTime);
+    }
+
+    /**
+     * Represents a immutable parking time with arrival time and departure time for a parking slot
+     */
+    public static class ParkingTime {
+
+        /**
+         * The arrival time
+         */
+        private final LocalDateTime arrivalTime;
+
+        /**
+         * The departure time
+         */
+        private final LocalDateTime departureTime;
+
+        /**
+         * Private constructor
+         *
+         * @param arrivalTime
+         * @param departureTime
+         */
+        private ParkingTime(LocalDateTime arrivalTime, LocalDateTime departureTime) {
+            this.arrivalTime = arrivalTime;
+            this.departureTime = departureTime;
+        }
+
+        /**
+         * Gets the arrival time
+         *
+         * @return the arrival time
+         */
+        public LocalDateTime getArrivalTime() {
+            return arrivalTime;
+        }
+
+        /**
+         * Gets the departure time
+         *
+         * @return the departure time
+         */
+        public LocalDateTime getDepartureTime() {
+            return departureTime;
+        }
     }
 }

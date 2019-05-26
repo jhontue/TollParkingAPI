@@ -3,6 +3,7 @@ package com.jhontue.parking.api;
 import com.jhontue.parking.api.internal.DefaultBill;
 import com.jhontue.parking.api.internal.ParkingSlotService;
 import com.jhontue.parking.api.internal.ParkingSlotUtilization;
+import com.jhontue.parking.api.internal.ParkingSlotUtilization.ParkingTime;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -10,8 +11,8 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
- * Entry point of the TollParkingAPI. The class {@link TollParking} provides management for a toll parking.
- * It handles the availability of the parking slots through the checkin/checkout service. A parking slot is configured
+ * It's the entry point of the TollParkingAPI. The class {@link TollParking} provides management for a toll parking.
+ * It handles availability of the parking slots through the checkin/checkout service. A parking slot is configured
  * to accept a single car type, see {@link com.jhontue.parking.api.Car.CarType}.
  * When the checkout is done, a {@link Bill} is calculated according to the princing policy of the parking.
  * A convenient builder is provided to create the parking, see {@link TollParking#create()} to set the
@@ -44,8 +45,7 @@ public class TollParking {
      * @return a parking slot if available
      */
     public Optional<ParkingSlot> checkinCar(Car car) {
-        Optional<ParkingSlotUtilization> optionalSlotUtilization = parkingSlotService.checkin(car);
-        return optionalSlotUtilization.map(ParkingSlotUtilization::getParkingSlot);
+        return parkingSlotService.checkin(car);
     }
 
     /**
@@ -59,22 +59,22 @@ public class TollParking {
      * @throws IllegalArgumentException if the parking slot can not be checked out
      */
     public Bill checkoutCar(ParkingSlot parkingSlot) {
-        Optional<ParkingSlotUtilization> optSlotUtilization = parkingSlotService.checkout(parkingSlot);
+        Optional<ParkingTime> optParkingTime = parkingSlotService.checkout(parkingSlot);
 
         // throw exception if no slot is found
-        if (!optSlotUtilization.isPresent()) {
+        if (!optParkingTime.isPresent()) {
             throw new IllegalArgumentException("parking slot could not be found or is not used and it should");
         }
 
         // compute amount with the pricing policy
-        ParkingSlotUtilization slotUtilization = optSlotUtilization.get();
-        BigDecimal amount = pricingPolicy.computePrice(slotUtilization.getArrivalTime(), slotUtilization.getDepartureTime());
+        ParkingTime parkingTime = optParkingTime.get();
+        BigDecimal amount = pricingPolicy.computePrice(parkingTime.getArrivalTime(), parkingTime.getDepartureTime());
 
         // return the bill
         Bill bill = new DefaultBill()
                 .amount(amount)
-                .arrivalTime(slotUtilization.getArrivalTime())
-                .departureTime(slotUtilization.getDepartureTime());
+                .arrivalTime(parkingTime.getArrivalTime())
+                .departureTime(parkingTime.getDepartureTime());
         return bill;
     }
 
