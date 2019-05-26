@@ -3,22 +3,51 @@ package com.jhontue.parking.api.internal;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+/**
+ * Default implementation of a bill with builder methods.
+ */
 public class DefaultBill implements com.jhontue.parking.api.Bill {
 
+    /**
+     * The bill amount
+     */
     private BigDecimal amount;
+
+    /**
+     * The arrival time of the car
+     */
     private LocalDateTime arrivalTime;
+
+    /**
+     * The departure time of the car
+     */
     private LocalDateTime departureTime;
 
+    /**
+     * Sets the amount
+     * @param amount the bill amount
+     * @return the bill instance
+     */
     public DefaultBill amount(BigDecimal amount){
         this.amount = amount;
         return this;
     }
 
-    public DefaultBill arrivalTime(LocalDateTime arrivedTime){
-        this.arrivalTime = arrivedTime;
+    /**
+     * Sets the arrival time
+     * @param arrivalTime the arrival time of the car
+     * @return the bill instance
+     */
+    public DefaultBill arrivalTime(LocalDateTime arrivalTime){
+        this.arrivalTime = arrivalTime;
         return this;
     }
 
+    /**
+     * Sets the departure time
+     * @param departureTime the departure time of the car
+     * @return the bill instance
+     */
     public DefaultBill departureTime(LocalDateTime departureTime){
         this.departureTime = departureTime;
         return this;

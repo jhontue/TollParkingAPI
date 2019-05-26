@@ -3,12 +3,12 @@ package com.jhontue.parking.api;
 import com.jhontue.parking.api.internal.DefaultCar;
 
 /**
- *
+ * Represents a car with a type.
  */
 public interface Car {
 
     /**
-     *
+     * The car types. Each parking slot is compatible with a single car type.
      */
     enum CarType {
         GASOLINE,
@@ -18,15 +18,17 @@ public interface Car {
     }
 
     /**
+     * The type of the car.
      *
-     * @return
+     * @return a car type
      */
     CarType getCarType();
 
     /**
+     * Factory method to create a car from its type
      *
-     * @param carType
-     * @return
+     * @param carType a car type
+     * @return a car
      */
     static Car of(CarType carType) {
         return new DefaultCar(carType);

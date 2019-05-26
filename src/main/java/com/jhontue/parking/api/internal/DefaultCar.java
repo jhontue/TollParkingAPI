@@ -2,6 +2,9 @@ package com.jhontue.parking.api.internal;
 
 import com.jhontue.parking.api.Car;
 
+/**
+ * Default implementation of a car. The car must have a type.
+ */
 public class DefaultCar implements Car {
 
     /**

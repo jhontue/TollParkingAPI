@@ -5,27 +5,40 @@ import com.jhontue.parking.api.ParkingSlot;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
+/**
+ * The parking slot availability service. Allows to checkin and check out cars into/from the parking slots.
+ */
 public class ParkingSlotService {
 
     /**
-     *
+     * The list of parking slots
      */
     private final List<ParkingSlotUtilization> slots;
 
     /**
-     * @param slots
+     * Constructor
+     *
+     * @param slots the list of parking slots
      */
     public ParkingSlotService(List<ParkingSlotUtilization> slots) {
         this.slots = slots;
     }
 
     /**
-     * @param car
+     * Allows to checkin a car in the parking. It reserves a parking slot and sets the arrival time. If no parking slot
+     * is available for the right type, the checkin is refused, no parking slot will be returned.
+     *
+     * @param car a car
+     * @throw IllegalArgumentException if the car is null
      */
     public Optional<ParkingSlotUtilization> checkin(Car car) {
-        // TODO check inputs
+        // check inputs
+        if (Objects.isNull(car)) {
+            throw new IllegalArgumentException("car must not be null");
+        }
 
         // get first parking slot of the right type if available
         Optional<ParkingSlotUtilization> optSlotUtilization = slots.stream()
@@ -43,7 +56,10 @@ public class ParkingSlotService {
     }
 
     /**
-     * @param parkingSlot
+     * Allows to checkout a car from the parking. The parking slot is freed and becomes available for checkin.
+     * The departure time is set.
+     *
+     * @param parkingSlot the parking slot to be freed
      */
     public Optional<ParkingSlotUtilization> checkout(ParkingSlot parkingSlot) {
         // TODO check input

@@ -5,36 +5,43 @@ import com.jhontue.parking.api.internal.ParkingSlotService;
 import com.jhontue.parking.api.internal.ParkingSlotUtilization;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
- *
+ * Entry point of the TollParkingAPI. The class {@link TollParking} provides management for a toll parking.
+ * It handles the availability of the parking slots through the checkin/checkout service. A parking slot is configured
+ * to accept a single car type, see {@link com.jhontue.parking.api.Car.CarType}.
+ * When the checkout is done, a {@link Bill} is calculated according to the princing policy of the parking.
+ * A convenient builder is provided to create the parking, see {@link TollParking#create()} to set the
+ * proper initialization. A pricing policy is mandatory when creating the parking and the parking slot configuration
+ * should be initialized with the builder.
  */
 public class TollParking {
+
     /**
-     *
+     * The pricing policy of the parking.
      */
     private PricingPolicy pricingPolicy;
 
     /**
-     *
+     * The parking slot availability service.
      */
     private ParkingSlotService parkingSlotService;
 
     /**
-     * Private constructor
+     * Private constructor. Use the builder {@link TollParking#create()} to initialize and create the parking.
      */
-    private TollParking(){
+    private TollParking() {
     }
 
     /**
-     * @param car
-     * @return
+     * Allows to checkin a {@link Car} in the parking if there is a parking slot available of the right type.
+     * If there are no slots available, no parking slot is returned.
+     *
+     * @param car the car entering the parking
+     * @return a parking slot if available
      */
     public Optional<ParkingSlot> checkinCar(Car car) {
         Optional<ParkingSlotUtilization> optionalSlotUtilization = parkingSlotService.checkin(car);
@@ -42,21 +49,28 @@ public class TollParking {
     }
 
     /**
-     * @param parkingSlot
-     * @return a bill
+     * Allows to exit the parking slot. If the parking slot is not used or can not be found, an {@link IllegalArgumentException}
+     * will be raised.
+     * The parking slot is freed and becomes available for another car. A {@link Bill} is provided when the car leaves.
+     *
+     * @param parkingSlot the parking slot obtained at checkin time
+     * @return a bill according to the pricing policy
+     *
+     * @throws IllegalArgumentException if the parking slot can not be checked out
      */
     public Bill checkoutCar(ParkingSlot parkingSlot) {
         Optional<ParkingSlotUtilization> optSlotUtilization = parkingSlotService.checkout(parkingSlot);
 
         // throw exception if no slot is found
-        if (optSlotUtilization.isEmpty()) {
-            throw new IllegalArgumentException("no parking "); // TODO
+        if (!optSlotUtilization.isPresent()) {
+            throw new IllegalArgumentException("parking slot could not be found or is not used and it should");
         }
 
-        // compute bill with the pricing policy
+        // compute amount with the pricing policy
         ParkingSlotUtilization slotUtilization = optSlotUtilization.get();
         BigDecimal amount = pricingPolicy.computePrice(slotUtilization.getArrivalTime(), slotUtilization.getDepartureTime());
 
+        // return the bill
         Bill bill = new DefaultBill()
                 .amount(amount)
                 .arrivalTime(slotUtilization.getArrivalTime())
@@ -65,17 +79,30 @@ public class TollParking {
     }
 
     /**
+     * Allows to create a {@link TollParking}
      *
+     * @return a toll parking builder
+     */
+    public static TollParkingBuilder create() {
+        return new TollParkingBuilder();
+    }
+
+    /**
+     * A builder allowing to create a {@link TollParking}.
      */
     public static class TollParkingBuilder {
 
+        /**
+         * The pricing policy
+         */
         private PricingPolicy pricingPolicy;
         private List<ParkingSlotUtilization> slotUtilizationList = new ArrayList<>();
 
         /**
+         * Sets the pricing policy
          *
-         * @param pricingPolicy
-         * @return
+         * @param pricingPolicy the pricing policy
+         * @return the builder
          */
         public TollParkingBuilder pricingPolicy(PricingPolicy pricingPolicy) {
             this.pricingPolicy = pricingPolicy;
@@ -83,10 +110,34 @@ public class TollParking {
         }
 
         /**
+         * Sets a princing policy for each hour spent in the parking.
          *
-         * @param carType
-         * @param numberOfSlots
-         * @return
+         * @param hourPrice the hour price
+         * @return the builder
+         */
+        public TollParkingBuilder perHourPricing(BigDecimal hourPrice) {
+            this.pricingPolicy = PricingPolicy.perHour(hourPrice);
+            return this;
+        }
+
+        /**
+         * Sets a princing policy with a fixed amount and for each hour spent in the parking.
+         *
+         * @param hourPrice   the hour price
+         * @param fixedAmount the fixed amount that will be added to the final price
+         * @return the builder
+         */
+        public TollParkingBuilder perHourAndFixedAmountPricing(BigDecimal hourPrice, BigDecimal fixedAmount) {
+            this.pricingPolicy = PricingPolicy.perHourAndFixedAmount(hourPrice, fixedAmount);
+            return this;
+        }
+
+        /**
+         * Adds a parking slot collection of a defined car type.
+         *
+         * @param carType       the car type
+         * @param numberOfSlots the number of slots to add
+         * @return the builder
          */
         public TollParkingBuilder addParkingSlot(Car.CarType carType, int numberOfSlots) {
             List<ParkingSlotUtilization> newSlots = IntStream
@@ -97,9 +148,34 @@ public class TollParking {
             return this;
         }
 
+        /**
+         * Adds a parking slot
+         *
+         * @param parkingSlot the parking slot to add
+         * @return the builder
+         */
+        public TollParkingBuilder addParkingSlot(ParkingSlot parkingSlot) {
+            slotUtilizationList.add(new ParkingSlotUtilization(parkingSlot));
+            return this;
+        }
+
+        /**
+         * Creates the toll parking
+         *
+         * @return a toll parking initialized
+         * @throws IllegalArgumentException if the pricing policy is null
+         */
         public TollParking build() {
-            // default values
-            return null;
+            // check mandatory fields
+            if (Objects.isNull(this.pricingPolicy)) {
+                throw new IllegalArgumentException("Pricing policy must not be null");
+            }
+            // create parking
+            TollParking parking = new TollParking();
+            parking.pricingPolicy = this.pricingPolicy;
+            parking.parkingSlotService = new ParkingSlotService(this.slotUtilizationList);
+
+            return parking;
         }
     }
 
