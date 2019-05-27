@@ -3,7 +3,6 @@ package com.jhontue.parking.api;
 import com.jhontue.parking.api.internal.DefaultBill;
 import com.jhontue.parking.api.internal.ParkingSlotService;
 import com.jhontue.parking.api.internal.ParkingSlotUtilization;
-import com.jhontue.parking.api.internal.ParkingSlotUtilization.ParkingTime;
 
 import java.math.BigDecimal;
 import java.util.*;

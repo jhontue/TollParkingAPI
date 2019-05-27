@@ -2,7 +2,7 @@ package com.jhontue.parking.api.internal;
 
 import com.jhontue.parking.api.Car;
 import com.jhontue.parking.api.ParkingSlot;
-import com.jhontue.parking.api.internal.ParkingSlotUtilization.ParkingTime;
+import com.jhontue.parking.api.ParkingTime;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -58,7 +58,7 @@ public class ParkingSlotService {
         try {
             // get first parking slot of the right type if available
             optSlotUtilization = slots.stream()
-                    .filter(slot -> slot.canReceive(car) && slot.isFree())
+                    .filter(slot -> slot.isCompatibleWith(car) && slot.isFree())
                     .findFirst();
 
             // link slot utilisation and car if available

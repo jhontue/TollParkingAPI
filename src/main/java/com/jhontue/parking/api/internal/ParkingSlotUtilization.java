@@ -2,6 +2,7 @@ package com.jhontue.parking.api.internal;
 
 import com.jhontue.parking.api.Car;
 import com.jhontue.parking.api.ParkingSlot;
+import com.jhontue.parking.api.ParkingTime;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -46,7 +47,7 @@ public class ParkingSlotUtilization {
      * @param car a car
      * @return <code>true</code> if the car has the same car type as the parking slot, <code>false</code> otherwise
      */
-    public boolean canReceive(Car car) {
+    public boolean isCompatibleWith(Car car) {
         return this.parkingSlot.getCarType().equals(car.getCarType());
     }
 
@@ -131,48 +132,4 @@ public class ParkingSlotUtilization {
         return new ParkingTime(arrivalTime, departureTime);
     }
 
-    /**
-     * Represents a immutable parking time with arrival time and departure time for a parking slot
-     */
-    public static class ParkingTime {
-
-        /**
-         * The arrival time
-         */
-        private final LocalDateTime arrivalTime;
-
-        /**
-         * The departure time
-         */
-        private final LocalDateTime departureTime;
-
-        /**
-         * Private constructor
-         *
-         * @param arrivalTime
-         * @param departureTime
-         */
-        private ParkingTime(LocalDateTime arrivalTime, LocalDateTime departureTime) {
-            this.arrivalTime = arrivalTime;
-            this.departureTime = departureTime;
-        }
-
-        /**
-         * Gets the arrival time
-         *
-         * @return the arrival time
-         */
-        public LocalDateTime getArrivalTime() {
-            return arrivalTime;
-        }
-
-        /**
-         * Gets the departure time
-         *
-         * @return the departure time
-         */
-        public LocalDateTime getDepartureTime() {
-            return departureTime;
-        }
-    }
 }
