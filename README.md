@@ -38,7 +38,7 @@ TollParking parking = TollParking.create()
 ```
 ### Pricing policy
 Two pricing policy implementations are provided. One for each hour spent in the parking and another with a fixed
-amount + each hour. Feel free to use your proper price implementation, it can be provided with the configuration.
+amount + each hour. Feel free to use your own pricing policy, it can be provided with the builder.
 
 ```java
 // each hour spent in the parking
