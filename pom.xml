@@ -16,6 +16,16 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
 
+    <developers>
+        <developer>
+            <name>Eduardo ORE HERRERA</name>
+            <url>https://github.com/jhontue</url>
+            <id>jhontue</id>
+            <email>eduardo.oreherrera@gmail.com</email>
+            <timezone>UTC+02:00</timezone>
+        </developer>
+    </developers>
+
     <build>
         <plugins>
             <plugin>
