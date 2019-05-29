@@ -20,8 +20,8 @@ public class ParkingTime {
     /**
      * Private constructor
      *
-     * @param arrivalTime
-     * @param departureTime
+     * @param arrivalTime arrival time
+     * @param departureTime departure time
      */
     public ParkingTime(LocalDateTime arrivalTime, LocalDateTime departureTime) {
         this.arrivalTime = arrivalTime;
