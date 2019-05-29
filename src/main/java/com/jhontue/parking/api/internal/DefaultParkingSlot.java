@@ -38,4 +38,13 @@ public class DefaultParkingSlot implements ParkingSlot {
     public String getId() {
         return id;
     }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("DefaultParkingSlot{");
+        sb.append("carType=").append(carType);
+        sb.append(", id='").append(id).append('\'');
+        sb.append('}');
+        return sb.toString();
+    }
 }

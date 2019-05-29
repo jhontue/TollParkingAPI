@@ -3,6 +3,8 @@ package com.jhontue.parking.api;
 import com.jhontue.parking.api.internal.DefaultBill;
 import com.jhontue.parking.api.internal.ParkingSlotService;
 import com.jhontue.parking.api.internal.ParkingSlotUtilization;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -20,6 +22,11 @@ import java.util.stream.IntStream;
  * Toll parking is thread safe.
  */
 public class TollParking {
+
+    /**
+     * Logging
+     */
+    private static final Logger LOGGER = LoggerFactory.getLogger(TollParking.class);
 
     /**
      * The pricing policy of the parking.
@@ -45,7 +52,14 @@ public class TollParking {
      * @return a parking slot if available
      */
     public Optional<ParkingSlot> checkinCar(Car car) {
-        return parkingSlotService.checkin(car);
+        LOGGER.info("checkinCar car={}", car);
+        Optional<ParkingSlot> optionalParkingSlot = parkingSlotService.checkin(car);
+        if (optionalParkingSlot.isPresent()){
+            LOGGER.info("parking slot is parkingSlot={} for car={}", optionalParkingSlot.get(), car);
+        } else {
+            LOGGER.info("no parking slot available for car={}", car);
+        }
+        return optionalParkingSlot;
     }
 
     /**
@@ -59,6 +73,7 @@ public class TollParking {
      * @throws IllegalArgumentException if the parking slot can not be checked out
      */
     public Bill checkoutCar(ParkingSlot parkingSlot) {
+        LOGGER.info("checkoutCar from parkingSlot={}", parkingSlot);
         Optional<ParkingTime> optParkingTime = parkingSlotService.checkout(parkingSlot);
 
         // throw exception if no slot is found
@@ -75,6 +90,8 @@ public class TollParking {
                 .amount(amount)
                 .arrivalTime(parkingTime.getArrivalTime())
                 .departureTime(parkingTime.getDepartureTime());
+
+        LOGGER.info("billing customer bill={} for parkingSlot={}", bill, parkingSlot);
         return bill;
     }
 

@@ -54,6 +54,16 @@ public class DefaultBill implements com.jhontue.parking.api.Bill {
     }
 
     @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("DefaultBill{");
+        sb.append("amount=").append(amount);
+        sb.append(", arrivalTime=").append(arrivalTime);
+        sb.append(", departureTime=").append(departureTime);
+        sb.append('}');
+        return sb.toString();
+    }
+
+    @Override
     public BigDecimal getAmount() {
         return amount;
     }

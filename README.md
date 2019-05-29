@@ -35,8 +35,6 @@ TollParking parking = TollParking.create()
     .addParkingSlot(CarType.ELECTRIC_50KW, 3)
     .perHourPricing(new BigDecimal(2.00))
     .build();
-    
-
 ```
 ### Pricing policy
 Two pricing policy implementations are provided. One for each hour spent in the parking and another with a fixed
@@ -60,7 +58,6 @@ TollParking parking = TollParking.create()
         .addParkingSlot(CarType.GASOLINE, 10)
         .pricingPolicy((arrivalTime, departureTime) -> BigDecimal.ZERO) // free parking
         .build();
-
 ```
 
 ### Play with it

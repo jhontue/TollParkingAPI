@@ -30,4 +30,12 @@ public class DefaultCar implements Car {
     public CarType getCarType() {
         return carType;
     }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("DefaultCar{");
+        sb.append("carType=").append(carType);
+        sb.append('}');
+        return sb.toString();
+    }
 }

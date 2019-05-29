@@ -3,6 +3,8 @@ package com.jhontue.parking.api.internal;
 import com.jhontue.parking.api.Car;
 import com.jhontue.parking.api.ParkingSlot;
 import com.jhontue.parking.api.ParkingTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -14,6 +16,11 @@ import java.util.concurrent.locks.ReentrantLock;
  * The parking slot availability service. Allows to checkin and check out cars into/from the parking slots.
  */
 public class ParkingSlotService {
+
+    /**
+     * Logging
+     */
+    private static final Logger LOGGER = LoggerFactory.getLogger(ParkingSlotService.class);
 
     /**
      * The list of parking slots
@@ -64,6 +71,7 @@ public class ParkingSlotService {
             // link slot utilisation and car if available
             optSlotUtilization.ifPresent(
                     slotUtilization -> {
+                        LOGGER.info("checkin - slot={} is now used by car={}", slotUtilization.getParkingSlot(), car);
                         slotUtilization.setCar(car);
                         slotUtilization.setArrivalTime(LocalDateTime.now());
                         slotUtilization.setDepartureTime(null);
@@ -106,6 +114,7 @@ public class ParkingSlotService {
 
             // mark parking slot as free if available
             optSlotUtilization.ifPresent(slotUtilization -> {
+                LOGGER.info("checkout - slot {} is free again", slotUtilization.getParkingSlot());
                 slotUtilization.setCar(null);
                 slotUtilization.setDepartureTime(LocalDateTime.now());
             });
