@@ -76,4 +76,4 @@ Bill bill = parking.checkoutCar(firstParkingSlot.get());
 ```
 
 ## Documentation
-javadoc
+* [Javadoc](https://jhontue.github.io/TollParkingAPI/index.html)
