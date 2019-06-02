@@ -1,5 +1,6 @@
 # TollParkingAPI
 [![Build Status](https://travis-ci.com/jhontue/TollParkingAPI.svg?branch=master&style=flat-square)](https://travis-ci.com/jhontue/TollParkingAPI)
+[![codecov](https://codecov.io/gh/jhontue/TollParkingAPI/branch/master/graphs/badge.svg)](https://codecov.io/gh/jhontue/TollParkingAPI)
 
 TollParkingAPI is a Java API for toll parking management.
 
