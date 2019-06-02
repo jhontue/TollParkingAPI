@@ -73,7 +73,7 @@ TollParking parking = TollParking.create()
 Optional<ParkingSlot> parkingSlot = parking.checkinCar(Car.of(CarType.GASOLINE));
 
 // the car leaves the parking and gets a bill
-Bill bill = parking.checkoutCar(firstParkingSlot.get());
+Bill bill = parking.checkoutCar(parkingSlot.get());
 ```
 
 ## Documentation
